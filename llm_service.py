@@ -3,6 +3,7 @@ import configparser
 import logging
 
 import torch
+from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
 from websocket_streamer import WebSocketStreamer
@@ -12,6 +13,8 @@ class LLMService:
     def __init__(self):
         config = configparser.ConfigParser()
         config.read('config.ini')
+        self.__auth_token = config.get("LLM", "AUTH_TOKEN")
+        login(self.__auth_token)
         self.__model_id = config.get("LLM", "MODEL")
         self.__prompt = config.get("LLM", "PROMPT")
         self.__tokenizers = AutoTokenizer.from_pretrained(self.__model_id)
