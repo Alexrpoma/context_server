@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class DataItem(BaseModel):
+    client_id: str
     summary: str
     language: str
     url: str
