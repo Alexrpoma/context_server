@@ -16,6 +16,10 @@ app = FastAPI(title="Context Server - HTTP Receiver",
 llm_service = LLMService()
 manager = ConnectionManager()
 
+@app.get("/")
+async def get():
+    return {"message": "Context Server is running."}
+
 # --- Async Streaming Consumer ---
 async def stream_tokens_to_client(client_id: str, queue: asyncio.Queue):
     """Consumes from the queue and sends tokens to the specific WebSocket client."""
