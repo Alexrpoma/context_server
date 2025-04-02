@@ -29,7 +29,7 @@ class LLMService:
         self.__model = AutoModelForCausalLM.from_pretrained(
             self.__model_id,
             quantization_config=quantization_config,
-            device_map="cuda",
+            device_map="auto",
         )
 
     def _blocking_generate(self, input_ids, streamer, max_length):
