@@ -4,7 +4,7 @@ import logging
 
 import torch
 from huggingface_hub import login
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from websocket_streamer import WebSocketStreamer
 
@@ -18,10 +18,18 @@ class LLMService:
         self.__model_id = config.get("LLM", "MODEL")
         self.__prompt = config.get("LLM", "PROMPT")
         self.__tokenizers = AutoTokenizer.from_pretrained(self.__model_id)
+
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+        )
+
         self.__model = AutoModelForCausalLM.from_pretrained(
             self.__model_id,
-            torch_dtype=torch.bfloat16,
-            device_map="auto"
+            quantization_config=quantization_config,
+            device_map="cuda",
         )
 
     def _blocking_generate(self, input_ids, streamer, max_length):
