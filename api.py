@@ -26,7 +26,7 @@ async def stream_tokens_to_client(client_id: str, queue: asyncio.Queue):
     logging.info(f"Starting token streaming consumer for {client_id}...")
     try:
         while True:
-            token_or_signal = await queue.get()
+            token_or_signal: str = await queue.get()
             if token_or_signal is None:
                 logging.info(f"End signal received internally for {client_id}. Sending [DONE] signal.")
                 try:
@@ -34,8 +34,10 @@ async def stream_tokens_to_client(client_id: str, queue: asyncio.Queue):
                 except Exception as send_error:
                     logging.error(f"Error sending [DONE] signal to {client_id}: {send_error}")
                 break
+            if token_or_signal.__contains__("<|eot_id|>"):
+                await manager.send_personal_message(token_or_signal.replace("<|eot_id|>", ""), client_id)
             # print(f"Sending token to {client_id}: {token_or_signal[:30]}...") # Debug
-            await manager.send_personal_message(token_or_signal, client_id)
+            else: await manager.send_personal_message(token_or_signal, client_id)
             queue.task_done()
     except asyncio.CancelledError:
          logging.error(f"Streaming task for {client_id} was cancelled.")

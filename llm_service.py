@@ -3,7 +3,6 @@ import configparser
 import logging
 
 import torch
-from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from websocket_streamer import WebSocketStreamer
@@ -12,13 +11,19 @@ from websocket_streamer import WebSocketStreamer
 class LLMService:
     def __init__(self):
         config = configparser.ConfigParser()
+
+        # --Uncomment if you need to login to Hugging Face--
+        # from huggingface_hub import login
+        # self.__auth_token = config.get("LLM", "AUTH_TOKEN")
+        # login(self.__auth_token)
+
+        # Load the model and tokenizer
         config.read('config.ini')
-        #self.__auth_token = config.get("LLM", "AUTH_TOKEN")
-        #login(self.__auth_token)
         self.__model_id = config.get("LLM", "MODEL")
         self.__prompt = config.get("LLM", "PROMPT")
         self.__tokenizers = AutoTokenizer.from_pretrained(self.__model_id)
 
+        # Load the model with 4-bit quantization
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
