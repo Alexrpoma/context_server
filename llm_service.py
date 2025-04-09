@@ -56,10 +56,11 @@ class LLMService:
             streamer.queue.put_nowait(streamer.stop_signal)
 
 
-    async def run_async_stream(self, qdrant_response: str, max_length: int, queue: asyncio.Queue):
+    async def run_async_stream(self, qdrant_response: str, url: str, max_length: int, queue: asyncio.Queue):
+        payload = f"summary: {qdrant_response} URL: {url}"
         messages = [
             {"role": "system", "content": self.__prompt},
-            {"role": "user", "content": qdrant_response},
+            {"role": "user", "content": payload},
         ]
         try:
             input_ids = self.__tokenizers.apply_chat_template(

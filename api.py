@@ -52,7 +52,8 @@ async def stream_tokens_to_client(client_id: str, queue: asyncio.Queue):
 async def process_data_endpoint(request_item: DataItem, background_tasks: BackgroundTasks):
     client_id = request_item.client_id
     summary = request_item.summary
-    url = request_item.url # Not used yet
+    url = request_item.url
+    category = request_item.category
 
     logging.info(f"HTTP POST: Received data for client_id: {client_id}")
 
@@ -68,10 +69,10 @@ async def process_data_endpoint(request_item: DataItem, background_tasks: Backgr
     consumer_task = asyncio.create_task(stream_tokens_to_client(client_id, queue))
     manager.add_streaming_task(client_id, consumer_task) # register the task
 
-    logging.info(f"HTTP POST: Dispatching LLM generation for {client_id}...")
-    background_tasks.add_task(llm_service.run_async_stream, summary, 512, queue)
+    logging.info(f"HTTP POST: Dispatching LLM generation for {client_id}")
+    background_tasks.add_task(llm_service.run_async_stream, summary, url, 512, queue)
 
-    logging.info(f"HTTP POST: Responding 202 Accepted to Service A for client {client_id}.")
+    logging.info(f"HTTP POST: Responding 202 Accepted to Alva_Search for client {client_id}.")
     return {"message": "Data received, processing started, streaming initiated via WebSocket."}
 
 
