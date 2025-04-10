@@ -70,7 +70,7 @@ async def process_data_endpoint(request_item: DataItem, background_tasks: Backgr
     manager.add_streaming_task(client_id, consumer_task) # register the task
 
     logging.info(f"HTTP POST: Dispatching LLM generation for {client_id}")
-    background_tasks.add_task(llm_service.run_async_stream, summary, url, 512, queue)
+    background_tasks.add_task(llm_service.run_async_stream, summary, url, 768, queue)
 
     logging.info(f"HTTP POST: Responding 202 Accepted to Alva_Search for client {client_id}.")
     return {"message": "Data received, processing started, streaming initiated via WebSocket."}
